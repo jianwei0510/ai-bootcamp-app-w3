@@ -19,6 +19,10 @@ COPY . .
 # 設定環境變數（build time）
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Provide dummy DATABASE_URL for Prisma generation during build
+# The actual DATABASE_URL will be provided at runtime
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+
 # 建置 Next.js (prisma generate is included in build script)
 RUN npm run build
 
