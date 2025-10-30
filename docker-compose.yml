@@ -1,12 +1,13 @@
 # Docker Compose - Simplified for AWS RDS
 # Database runs on AWS RDS (external)
+# Using GitHub Container Registry (ghcr.io)
 
 version: '3.9'
 
 services:
   # Next.js Application
   app:
-    image: ${DOCKER_USERNAME}/todo-app:latest
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/todo-app:latest
     container_name: todo-app
     restart: unless-stopped
     ports:
