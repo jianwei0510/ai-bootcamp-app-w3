@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut } from "../utils/sign-out";
+import { authClient } from "../lib/client";
 import { User } from "../utils/user";
 
 export const UserProfile = () => {
@@ -38,7 +38,7 @@ export const UserProfile = () => {
     .slice(0, 2);
 
   const handleSignOut = async () => {
-    await signOut();
+    await authClient.signOut();
   };
 
   return (
