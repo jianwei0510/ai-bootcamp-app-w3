@@ -1,8 +1,10 @@
-import { UserProfile } from "@/features/auth/components/user-profile";
-import { getServerSession } from "@/features/auth/lib/main";
+import { CheckCircle2Icon, SparklesIcon } from "lucide-react";
 import { CreateTodoForm } from "@/features/todo/components/create-todo-form";
 import { TodoItemList } from "@/features/todo/components/todo-item-list";
 import db from "@/lib/db";
+import { ThemeToggle } from "@/components/theme-toggle";
+
+export const dynamic = "force-dynamic";
 
 const DUMMY_TODOS = [
   {
@@ -55,51 +57,102 @@ const DUMMY_TODOS = [
 ];
 
 export default async function Page() {
-  const session = await getServerSession();
-
   const todos = await db.todo.findMany({
-    where: {
-      createdBy: session?.user?.id,
-    },
-    include: {
-      createdByUser: true,
-    },
+    orderBy: { createdAt: "desc" },
   });
 
   const randomTodo =
     DUMMY_TODOS[Math.floor(Math.random() * DUMMY_TODOS.length)];
+
+  const completedCount = todos.filter((t) => t.completed).length;
+  const totalCount = todos.length;
+
   return (
-    <div className='flex flex-col min-h-screen'>
-      {/* Header with User Profile */}
-      <header className='sticky top-0 z-50 w-full border-b bg-background'>
-        <div className='flex h-16 items-center justify-between px-4'>
-          <h1 className='text-2xl font-bold'>WUC Todo App</h1>
-          <UserProfile />
+    <div className='flex min-h-screen flex-col'>
+      {/* Header */}
+      <header className='glass-card sticky top-0 z-50 border-b border-border/50'>
+        <div className='mx-auto flex h-16 max-w-6xl items-center justify-between px-6'>
+          <div className='flex items-center gap-3'>
+            <div className='flex size-9 items-center justify-center rounded-xl bg-primary/10'>
+              <CheckCircle2Icon className='size-5 text-primary' />
+            </div>
+            <h1 className='text-xl font-semibold tracking-tight' style={{ fontFamily: 'var(--font-outfit)' }}>
+              WUC Todo
+            </h1>
+          </div>
+          <ThemeToggle />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className='flex-1 flex flex-col items-center p-6 pt-12'>
-        <div className='w-full max-w-6xl space-y-8'>
-          <div className='text-center space-y-2'>
-            <h2 className='text-2xl md:text-4xl font-extrabold tracking-tight'>
+      <main className='flex flex-1 flex-col px-6 py-12'>
+        <div className='mx-auto w-full max-w-6xl space-y-12'>
+          {/* Hero Section */}
+          <section className='animate-fade-in-up space-y-6 text-center'>
+            <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary'>
+              <SparklesIcon className='size-4' />
+              <span>Stay organized, stay productive</span>
+            </div>
+
+            <h2
+              className='text-gradient text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl'
+              style={{ fontFamily: 'var(--font-outfit)' }}>
               Manage Your Todos
             </h2>
-            <p className='text-muted-foreground text-base md:text-lg text-balance'>
-              Stay organized and productive with WUC Todo
-            </p>
-          </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div className='col-span-1 flex justify-center md:justify-end'>
+            <p className='mx-auto max-w-2xl text-balance text-lg text-muted-foreground'>
+              A beautiful, simple way to keep track of everything you need to
+              do. Create, organize, and complete your tasks with ease.
+            </p>
+
+            {/* Stats */}
+            {totalCount > 0 && (
+              <div className='flex items-center justify-center gap-8 pt-4'>
+                <div className='text-center'>
+                  <p className='text-3xl font-bold text-primary' style={{ fontFamily: 'var(--font-outfit)' }}>
+                    {totalCount}
+                  </p>
+                  <p className='text-sm text-muted-foreground'>Total Tasks</p>
+                </div>
+                <div className='h-8 w-px bg-border' />
+                <div className='text-center'>
+                  <p className='text-3xl font-bold text-primary' style={{ fontFamily: 'var(--font-outfit)' }}>
+                    {completedCount}
+                  </p>
+                  <p className='text-sm text-muted-foreground'>Completed</p>
+                </div>
+                <div className='h-8 w-px bg-border' />
+                <div className='text-center'>
+                  <p className='text-3xl font-bold text-primary' style={{ fontFamily: 'var(--font-outfit)' }}>
+                    {totalCount - completedCount}
+                  </p>
+                  <p className='text-sm text-muted-foreground'>Remaining</p>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* Content Grid */}
+          <section className='grid grid-cols-1 gap-8 lg:grid-cols-2'>
+            {/* Create Form */}
+            <div className='animate-fade-in-up animate-delay-100 flex justify-center lg:justify-end'>
               <CreateTodoForm randomTodo={randomTodo} />
             </div>
-            <div className='col-span-1 justify-center'>
+
+            {/* Todo List */}
+            <div className='animate-fade-in-up animate-delay-200 flex justify-center lg:justify-start'>
               <TodoItemList todos={todos} />
             </div>
-          </div>
+          </section>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className='border-t border-border/50 py-6'>
+        <div className='mx-auto max-w-6xl px-6 text-center text-sm text-muted-foreground'>
+          <p>Built with care · WUC Todo App</p>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Inbox,
-  LockIcon,
-  MoreVerticalIcon,
-  PencilIcon,
-  TrashIcon,
-} from "lucide-react";
+import { Inbox, MoreVerticalIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -25,63 +19,30 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { LoginDialog } from "@/features/auth/components/login-dialog";
-import { User } from "@/features/auth/utils/user";
 import type { Todo } from "../../../../generated/prisma/client";
 import { deleteTodo, toggleTodoComplete } from "../server/actions";
 import { EditTodoDialog } from "./edit-todo-dialog";
 import { TodoDetailsDialog } from "./todo-details-dialog";
 
 export const TodoItemList = ({ todos }: { todos: Todo[] }) => {
-  const { session } = User();
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-
-  if (!session?.user) {
-    return (
-      <>
-        {/* Overlay */}
-        <div className='inset-0 bg-primary-foreground h-full rounded-lg flex items-center justify-center'>
-          <div className='text-center space-y-4 p-6'>
-            <div className='flex justify-center'>
-              <div className='rounded-full bg-primary/10 p-4'>
-                <LockIcon className='h-12 w-12 text-primary' />
-              </div>
-            </div>
-            <div className='space-y-2'>
-              <h3 className='text-2xl font-bold'>Sign in Required</h3>
-              <p className='text-muted-foreground max-w-sm'>
-                Please sign in to view and manage your todos
-              </p>
-            </div>
-            <Button
-              size='lg'
-              onClick={() => setIsLoginDialogOpen(true)}
-              className='mt-4'>
-              Sign In to Continue
-            </Button>
-          </div>
-        </div>
-        <LoginDialog
-          open={isLoginDialogOpen}
-          onOpenChange={setIsLoginDialogOpen}
-        />
-      </>
-    );
-  }
-
   if (todos.length === 0) {
     return (
-      <div className='inset-0 bg-primary-foreground h-full rounded-lg flex items-center justify-center'>
-        <div className='text-center space-y-4 p-6'>
+      <div className='glass-card flex h-full w-full min-w-sm max-w-lg items-center justify-center rounded-2xl'>
+        <div className='space-y-4 p-8 text-center'>
           <div className='flex justify-center'>
-            <div className='rounded-full bg-primary/10 p-4'>
-              <Inbox className='h-12 w-12 text-primary' />
+            <div className='rounded-2xl bg-primary/10 p-5'>
+              <Inbox className='size-10 text-primary' />
             </div>
           </div>
           <div className='space-y-2'>
-            <h3 className='text-2xl font-bold'>No todos found</h3>
-            <p className='text-muted-foreground max-w-sm'>
-              You don't have any todos yet. Create one to get started.
+            <h3
+              className='text-xl font-semibold'
+              style={{ fontFamily: "var(--font-outfit)" }}>
+              No todos yet
+            </h3>
+            <p className='max-w-xs text-sm text-muted-foreground'>
+              Create your first todo to get started on your productivity
+              journey.
             </p>
           </div>
         </div>
@@ -90,7 +51,7 @@ export const TodoItemList = ({ todos }: { todos: Todo[] }) => {
   }
 
   return (
-    <div className='flex w-full min-w-sm max-w-lg flex-col items-center gap-4 h-80 overflow-y-auto'>
+    <div className='stagger-children flex h-96 w-full min-w-sm max-w-lg flex-col gap-3 overflow-y-auto pr-2'>
       {todos.map((todo) => (
         <TodoItem key={todo.id} todo={todo} />
       ))}
@@ -128,7 +89,6 @@ export const TodoItem = ({ todo }: { todo: Todo }) => {
   };
 
   const handleItemClick = (e: React.MouseEvent) => {
-    // Don't open details if clicking on checkbox, buttons, or dropdown
     const target = e.target as HTMLElement;
     if (
       target.closest("button") ||
@@ -152,24 +112,29 @@ export const TodoItem = ({ todo }: { todo: Todo }) => {
         open={isDetailsDialogOpen}
         onOpenChange={setIsDetailsDialogOpen}
       />
-      <div className='flex w-full min-w-sm max-w-md flex-col gap-6'>
+      <div className='w-full'>
         <Item
           variant='outline'
-          className='w-full cursor-pointer hover:bg-muted/50 transition-colors'
+          className={`hover-lift w-full cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-200 hover:border-primary/30 hover:bg-card/80 ${
+            isChecked ? "opacity-60" : ""
+          }`}
           onClick={handleItemClick}>
           <ItemMedia>
             <Checkbox
               checked={isChecked}
               onCheckedChange={handleToggleComplete}
               disabled={isPending}
+              className='border-2 data-[state=checked]:border-primary data-[state=checked]:bg-primary'
             />
           </ItemMedia>
           <ItemContent>
-            <ItemTitle className={isChecked ? "line-through opacity-60" : ""}>
+            <ItemTitle
+              className={`transition-all duration-200 ${isChecked ? "text-muted-foreground line-through" : ""}`}>
               {todo.title}
             </ItemTitle>
             {todo.description && (
-              <ItemDescription className='line-clamp-2'>
+              <ItemDescription
+                className={`line-clamp-1 ${isChecked ? "opacity-50" : ""}`}>
                 {todo.description}
               </ItemDescription>
             )}
@@ -177,11 +142,15 @@ export const TodoItem = ({ todo }: { todo: Todo }) => {
           <ItemActions>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant='ghost' size='icon' disabled={isPending}>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  disabled={isPending}
+                  className='size-8 text-muted-foreground hover:text-foreground'>
                   <MoreVerticalIcon className='size-4' />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
+              <DropdownMenuContent align='end' className='w-40'>
                 <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
                   <PencilIcon className='size-4' />
                   Edit

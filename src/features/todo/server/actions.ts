@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import superjson from "superjson";
-import { getServerSession } from "@/features/auth/lib/main";
 import {
   CreateTodoSchema,
   UpdateTodoSchema,
@@ -20,15 +19,6 @@ export const createTodo = async (data: string): Promise<ActionState> => {
 
   const validatedData = CreateTodoSchema.safeParse(formData);
 
-  const session = await getServerSession();
-
-  if (!session?.user) {
-    return {
-      success: false,
-      message: "ERROR: Unauthorized",
-    };
-  }
-
   if (!validatedData.success) {
     return {
       success: false,
@@ -39,10 +29,7 @@ export const createTodo = async (data: string): Promise<ActionState> => {
 
   try {
     await db.todo.create({
-      data: {
-        ...validatedData.data,
-        createdBy: session.user.id,
-      },
+      data: validatedData.data,
     });
     revalidatePath("/");
 

@@ -1,6 +1,13 @@
 "use client";
 
-import type { Todo, User } from "../../../../generated/prisma/client";
+import {
+  CalendarIcon,
+  CheckCircle2Icon,
+  CircleDashedIcon,
+  ClockIcon,
+  HashIcon,
+} from "lucide-react";
+import type { Todo } from "../../../../generated/prisma/client";
 import {
   Dialog,
   DialogContent,
@@ -8,11 +15,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarIcon, CheckCircle2Icon, CircleIcon } from "lucide-react";
 
 interface TodoDetailsDialogProps {
-  todo: Todo & { createdByUser?: User };
+  todo: Todo;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -34,121 +39,112 @@ export const TodoDetailsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className='glass-card max-w-2xl border-border/50'>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold flex items-center gap-2">
+          <DialogTitle
+            className='flex items-center gap-3 text-xl'
+            style={{ fontFamily: "var(--font-outfit)" }}>
             {todo.completed ? (
-              <CheckCircle2Icon className="size-6 text-green-600" />
+              <div className='flex size-8 items-center justify-center rounded-full bg-green-500/10'>
+                <CheckCircle2Icon className='size-5 text-green-500' />
+              </div>
             ) : (
-              <CircleIcon className="size-6 text-gray-400" />
+              <div className='flex size-8 items-center justify-center rounded-full bg-amber-500/10'>
+                <CircleDashedIcon className='size-5 text-amber-500' />
+              </div>
             )}
             {todo.title}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
-          {/* Status */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-muted-foreground">
-              Status:
+        <div className='mt-4 space-y-6'>
+          {/* Status Badge */}
+          <div className='flex items-center gap-3'>
+            <span className='text-sm font-medium text-muted-foreground'>
+              Status
             </span>
             <span
-              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
                 todo.completed
-                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-              }`}
-            >
-              {todo.completed ? "Completed" : "In Progress"}
+                  ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+              }`}>
+              {todo.completed ? (
+                <>
+                  <CheckCircle2Icon className='size-3' />
+                  Completed
+                </>
+              ) : (
+                <>
+                  <CircleDashedIcon className='size-3' />
+                  In Progress
+                </>
+              )}
             </span>
           </div>
 
-          <Separator />
+          <Separator className='bg-border/50' />
 
           {/* Description */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
+          <div className='space-y-2'>
+            <h3 className='text-sm font-medium text-muted-foreground'>
               Description
             </h3>
             {todo.description ? (
-              <p className="text-base leading-relaxed whitespace-pre-wrap">
+              <p className='whitespace-pre-wrap text-sm leading-relaxed'>
                 {todo.description}
               </p>
             ) : (
-              <p className="text-sm text-muted-foreground italic">
+              <p className='text-sm italic text-muted-foreground/70'>
                 No description provided
               </p>
             )}
           </div>
 
-          <Separator />
-
-          {/* Created By User */}
-          {todo.createdByUser && (
-            <>
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  Created By
-                </h3>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={todo.createdByUser.image || undefined}
-                      alt={todo.createdByUser.name}
-                    />
-                    <AvatarFallback>
-                      {todo.createdByUser.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()
-                        .slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">
-                      {todo.createdByUser.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {todo.createdByUser.email}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-            </>
-          )}
+          <Separator className='bg-border/50' />
 
           {/* Timestamps */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CalendarIcon className="size-4" />
-                <span className="font-medium">Created</span>
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+            <div className='flex items-start gap-3 rounded-xl bg-muted/30 p-4'>
+              <div className='flex size-9 items-center justify-center rounded-lg bg-primary/10'>
+                <CalendarIcon className='size-4 text-primary' />
               </div>
-              <p className="text-sm pl-6">{formatDate(todo.createdAt)}</p>
+              <div>
+                <p className='text-xs font-medium text-muted-foreground'>
+                  Created
+                </p>
+                <p className='text-sm font-medium'>{formatDate(todo.createdAt)}</p>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CalendarIcon className="size-4" />
-                <span className="font-medium">Last Updated</span>
+            <div className='flex items-start gap-3 rounded-xl bg-muted/30 p-4'>
+              <div className='flex size-9 items-center justify-center rounded-lg bg-primary/10'>
+                <ClockIcon className='size-4 text-primary' />
               </div>
-              <p className="text-sm pl-6">{formatDate(todo.updatedAt)}</p>
+              <div>
+                <p className='text-xs font-medium text-muted-foreground'>
+                  Last Updated
+                </p>
+                <p className='text-sm font-medium'>{formatDate(todo.updatedAt)}</p>
+              </div>
             </div>
           </div>
 
-          <Separator />
+          <Separator className='bg-border/50' />
 
           {/* Todo ID */}
-          <div className="space-y-1">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Todo ID
-            </h3>
-            <p className="text-xs font-mono bg-muted px-3 py-2 rounded">
-              {todo.id}
-            </p>
+          <div className='flex items-start gap-3 rounded-xl bg-muted/30 p-4'>
+            <div className='flex size-9 items-center justify-center rounded-lg bg-primary/10'>
+              <HashIcon className='size-4 text-primary' />
+            </div>
+            <div className='min-w-0 flex-1'>
+              <p className='text-xs font-medium text-muted-foreground'>
+                Todo ID
+              </p>
+              <p className='truncate font-mono text-xs text-muted-foreground'>
+                {todo.id}
+              </p>
+            </div>
           </div>
         </div>
       </DialogContent>
